@@ -121,6 +121,19 @@ class JasperPHP
 
             if( isset($db_connection['jdbc_url']) && !empty($db_connection['jdbc_url']) )
                 $command .= " --db-url " . $db_connection['jdbc_url'];
+
+            if ( isset($db_connection['jdbc_dir']) && !empty($db_connection['jdbc_dir']) ) 
+                $command .= ' --jdbc-dir ' . $db_connection['jdbc_dir'];
+
+            if ( isset($db_connection['db_sid']) && !empty($db_connection['db_sid']) )
+                $command .= ' --db-sid ' . $db_connection['db_sid'];
+           
+            if ( isset($db_connection['json_query']) && !empty($db_connection['json_query']) )
+                $command .= ' --json-query ' . $db_connection['json_query'];
+            
+            if ( isset($db_connection['data_file']) && !empty($db_connection['data_file']) )
+                $command .= ' --data-file ' . $db_connection['data_file'];
+
         }
 
         $this->redirect_output  = $redirect_output;
@@ -148,28 +161,31 @@ class JasperPHP
 
     public function output()
     {
-        return $this->the_command;
+        return escapeshellcmd($this->the_command);
     }
 
     public function execute($run_as_user = false)
     {
         if( $this->redirect_output && !$this->windows)
-            $this->the_command .= " > /dev/null 2>&1";
+            $this->the_command .= " 2>&1";
 
         if( $this->background && !$this->windows )
             $this->the_command .= " &";
 
-        if( $run_as_user !== false && strlen($run_as_user > 0) && !$this->windows )
-            $this->the_command = "su -u " . $run_as_user . " -c \"" . $this->the_command . "\"";
+        if( $run_as_user !== false && strlen($run_as_user) > 0 && !$this->windows )
+            $this->the_command = "su -c \"{$this->the_command}\" {$run_as_user}";
 
         $output     = array();
         $return_var = 0;
 
         exec($this->the_command, $output, $return_var);
 
-        if($return_var != 0)
-            throw new \Exception("There was and error executing the report! Time to check the logs!", 1);
-
+        if( $return_var != 0 && isset($output[0]) )
+            throw new \Exception($output[0], 1);
+        
+        elseif( $return_var != 0 ) 
+            throw new \Exception("Your report has an error and couldn't be processed! Try to output the command using the function `output();` and run it manually in the console.", 1);
+        
         return $output;
     }
 }

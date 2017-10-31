@@ -2,11 +2,17 @@
 
 Package to generate reports with [JasperReports 6](http://community.jaspersoft.com/project/jasperreports-library) library through [JasperStarter v3](http://jasperstarter.sourceforge.net/) command-line tool.
 
-##Introduction
+## Install
+
+```
+composer require starkliew/jasperphp
+```
+
+## Introduction
 
 This package aims to be a solution to compile and process JasperReports (.jrxml & .jasper files).
 
-###Why?
+### Why?
 
 Did you ever had to create a good looking Invoice with a lot of fields for your great web app?
 
@@ -14,7 +20,7 @@ I had to, and the solutions out there were not perfect. Generating *HTML* + *CSS
 
 Then I found **JasperReports** the best open source solution for reporting.
 
-###What can I do with this?
+### What can I do with this?
 
 Well, everything. JasperReports is a powerful tool for **reporting** and **BI**.
 
@@ -30,9 +36,9 @@ I recommend using [Jaspersoft Studio](http://community.jaspersoft.com/project/ja
 * Reports
 * Listings
 
-##Examples
+## Examples
 
-###The *Hello World* example.
+### The *Hello World* example.
 
 Go to the examples directory in the root of the repository (`vendor/cossou/jasperphp/examples`).
 Open the `hello_world.jrxml` file with iReport or with your favorite text editor and take a look at the source code.
@@ -51,7 +57,7 @@ This commando will compile the `hello_world.jrxml` source file to a `hello_world
 
 **Note:** If you are using Laravel 4 run `php artisan tinker` and copy & paste the command above.
 
-####Processing
+#### Processing
 
 Now lets process the report that we compile before:
 
@@ -68,7 +74,7 @@ Now check the examples folder! :) Great right? You now have 2 files, `hello_worl
 
 Check the *API* of the  `compile` and `process` functions in the file `src/JasperPHP/JasperPHP.php` file.
 
-####Listing Parameters
+#### Listing Parameters
 
 Querying the jasper file to examine parameters available in the given jasper report file:
 
@@ -81,7 +87,7 @@ foreach($output as $parameter_description)
 	echo $parameter_description;
 ```
 
-###Advanced example
+### Advanced example
 
 We can also specify parameters for connecting to database:
 
@@ -101,7 +107,7 @@ JasperPHP::process(
   )->execute();
 ```
 
-##Requirements
+## Requirements
 
 * Java JDK 1.6
 * PHP [exec()](http://php.net/manual/function.exec.php) function
@@ -109,9 +115,9 @@ JasperPHP::process(
 * [optional] [Jaspersoft Studio](http://community.jaspersoft.com/project/jaspersoft-studio) (to draw and compile your reports)
 
 
-##Installation
+## Installation
 
-###Java
+### Java
 
 Check if you already have Java installed:
 
@@ -132,15 +138,20 @@ Then install it with: (Ubuntu/Debian)
 
 Now run the `java -version` again and check if the output is ok.
 
-###Composer
+### Composer
 
 Install [Composer](http://getcomposer.org) if you don't have it.
 
-Now in your `composer.json` file add:
+```
+composer require cossou/jasperphp
+```
+
+Or in your `composer.json` file add:
+
 ```javascript
 {
     "require": {
-		"cossou/jasperphp": "dev-master",
+		"cossou/jasperphp": "~2",
     }
 }
 ```
@@ -151,10 +162,45 @@ And the just run:
 
 and thats it.
 
-###Using Laravel 5?
+### Using Laravel 5?
 
-We don't provide a specific package for L5 but you can easily use JasperPHP.
+Add `JasperPHP\JasperPHPServiceProvider::class` to config `config/app.php` in service provider
 
+File `config/app.php`
+
+```php
+<?php 
+.......
+.......
+'providers' => [
+    .......
+    Illuminate\Translation\TranslationServiceProvider::class,
+    Illuminate\Validation\ValidationServiceProvider::class,
+    Illuminate\View\ViewServiceProvider::class,
+    //insert jasper service provider here 
+    JasperPHP\JasperPHPServiceProvider::class
+],
+......
+......
+
+```
+
+Uses in Controller by add `use JasperPHP` after namespace
+```php
+<?php
+namespace App\Http\Controllers;
+use JasperPHP; // put here
+......
+......
+    public function generateReport()
+    {        
+        //jasper ready to call
+        JasperPHP::compile(base_path() . '/vendor/cossou/jasperphp/examples/hello_world.jrxml')->execute();
+    }
+......    
+```
+
+Uses in Route
 ```php
 use JasperPHP\JasperPHP as JasperPHP;
 
@@ -182,7 +228,7 @@ Route::get('/', function () {
 });
 ```
 
-###Using Laravel 4?
+### Using Laravel 4?
 
 Add to your `app/config/app.php` providers array:
 
@@ -191,28 +237,30 @@ Add to your `app/config/app.php` providers array:
 ```
 Now you will have the `JasperPHP` alias available.
 
-###MySQL
+### MySQL
 
 We ship the [MySQL connector](http://dev.mysql.com/downloads/connector/j/) (v5.1.34) in the `/src/JasperStarter/jdbc/` directory.
 
-###PostgreSQL
+### PostgreSQL
 
 We ship the [PostgreSQL](https://jdbc.postgresql.org/) (v9.4-1203) in the `/src/JasperStarter/jdbc/` directory.
 
-##Performance
+Note: Laravel uses `pgsql` driver name instead of `postgres`. 
+
+## Performance
 
 Depends on the complexity, amount of data and the resources of your machine (let me know your use case).
 
 I have a report that generates a *Invoice* with a DB connection, images and multiple pages and it takes about **3/4 seconds** to process. I suggest that you use a worker to generate the reports in the background.
 
-##Thanks
+## Thanks
 
 Thanks to [Cenote GmbH](http://www.cenote.de/) for the [JasperStarter](http://jasperstarter.sourceforge.net/) tool.
 
-##Questions?
+## Questions?
 
 Drop me a line on Twitter [@cossou](https://twitter.com/cossou).
 
-##License
+## License
 
 MIT
